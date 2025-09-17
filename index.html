@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mini Golf — CloneFest</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <!-- HUD -->
+    <div id="hud">
+      <div id="hole">Hole: 1</div>
+      <div id="par">Par: 3</div>
+      <div id="strokes">Strokes: 0</div>
+      <div id="powerbar"><div id="powerfill"></div></div>
+      <div id="controls">
+        <button id="resetBtn">Reset</button>
+        <button id="nextBtn">Next Hole</button>
+      </div>
+      <div id="hint">Hold SHIFT + drag to aim</div>
+    </div>
+
+    <!-- Canvas -->
+    <canvas id="c"></canvas>
+
+    <!-- Overlay -->
+    <div id="completeOverlay" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:60">
+      <div class="card" style="background:#fff;padding:18px;border-radius:10px;text-align:center;">
+        <div id="completeText"></div>
+        <button id="nextLevelBtn">Next Level</button>
+      </div>
+    </div>
+
+    <!-- Vite injects scripts here -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
