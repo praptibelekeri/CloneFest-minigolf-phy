@@ -7,13 +7,19 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <!-- START Overlay -->
-    <div id="startOverlay" style="display:flex;position:fixed;inset:0;z-index:70;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)">
-      <div style="background:#fff;padding:20px;border-radius:10px;max-width:420px;text-align:center">
-        <h2>MiniGolf — CloneFest</h2>
-        <p>Controls: Hold <b>SHIFT</b> + drag to aim (desktop). On mobile, tap/drag to aim.</p>
-        <p>Objective: Aim, adjust power and sink the ball in each hole.</p>
-        <button id="playBtn">Play</button>
+    <!-- START Overlay / Welcome Card -->
+    <div id="startOverlay">
+      <div id="welcome-card">
+        <div class="ball-container">
+          <div class="golf-ball"></div>
+        </div>
+        <h1> MINIGOLF MANIA</h1>
+        <p>Aim, Shoot, and Conquer Every Hole!⛳</p>
+        <div class="card-buttons">
+          <button id="playBtn">🎯 Start Game</button>
+          <button id="settingsBtn">⚙️ Settings</button>
+          <button id="howtoBtn">📜 How to Play</button>
+        </div>
       </div>
     </div>
 

@@ -9,11 +9,29 @@ import {
   updatePowerUI,
   showHoleComplete,
   hideHoleComplete,
-  showStartScreen,
-  hideStartScreen,
   updateBestText,
 } from './ui.js';
 import { levels } from './levels.js';
+
+/* ----------------- START OVERLAY HANDLING ----------------- */
+const startOverlay = document.getElementById('startOverlay');
+const playBtn = document.getElementById('playBtn');
+const settingsBtn = document.getElementById('settingsBtn');
+const howtoBtn = document.getElementById('howtoBtn');
+
+function showStartScreen() {
+  startOverlay.style.display = 'flex';
+}
+function hideStartScreen() {
+  startOverlay.style.display = 'none';
+}
+
+// Button interactions
+playBtn.addEventListener('click', () => {
+  hideStartScreen();
+});
+settingsBtn.addEventListener('click', () => alert('Settings panel goes here.'));
+howtoBtn.addEventListener('click', () => alert('Show how-to-play instructions here.'));
 
 // renderer
 const canvas = document.querySelector('#c');
@@ -100,38 +118,68 @@ function makeWall(x, z, w, d, h = 0.5) {
 }
 
 function makeHoleMesh(pos, radius) {
+  // Group for all hole parts so it can be managed as one unit
   const group = new THREE.Group();
 
-  // Cup wall (carved into ground)
-  const cupGeo = new THREE.CylinderGeometry(radius, radius, 0.2, 32, 1, true);
+  // Cup wall (slightly flared/tapered: top a bit wider than bottom)
+  // - Use open-ended cylinder for the side wall
+  // - Smooth interior with high radial segments
+  const topRadius = radius * 1.05;   // slightly wider at the top
+  const bottomRadius = radius * 0.95; // slightly tighter at the bottom
+  const cupDepth = 0.22;
+  const cupGeo = new THREE.CylinderGeometry(
+    topRadius,            // radiusTop
+    bottomRadius,         // radiusBottom
+    cupDepth,             // height
+    64,                   // radial segments for smoothness
+    1,                    // height segments
+    true                  // openEnded (no caps)
+  );
   const cupMat = new THREE.MeshStandardMaterial({
-    color: 0x222222,
+    color: 0x202020,
+    roughness: 0.85,
+    metalness: 0.0,
     side: THREE.DoubleSide,
-    roughness: 0.9,
   });
   const cup = new THREE.Mesh(cupGeo, cupMat);
-  cup.position.copy(pos);
-  cup.position.y = -0.1;
+  // Sink the cup into the ground so the rim sits at y≈0
+  cup.position.set(pos.x, -cupDepth / 2, pos.z);
+  cup.castShadow = false;
+  cup.receiveShadow = true;
   group.add(cup);
 
-  // Cup bottom
-  const baseGeo = new THREE.CircleGeometry(radius, 32);
+  // Cup bottom (dark disk)
+  const baseGeo = new THREE.CircleGeometry(bottomRadius, 64);
   baseGeo.rotateX(-Math.PI / 2);
-  const baseMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  const baseMat = new THREE.MeshStandardMaterial({
+    color: 0x000000,
+    roughness: 0.9,
+    metalness: 0.0,
+  });
   const base = new THREE.Mesh(baseGeo, baseMat);
-  base.position.copy(pos);
-  base.position.y = -0.2;
+  base.position.set(pos.x, -cupDepth, pos.z);
+  base.castShadow = false;
+  base.receiveShadow = true;
   group.add(base);
 
-  // Dark rim (torus/ring around hole)
-  const rimGeo = new THREE.RingGeometry(radius * 1.05, radius * 1.3, 32);
-  const rimMat = new THREE.MeshStandardMaterial({ color: 0x111111, side: THREE.DoubleSide });
+  // Thin raised rim around the edge (slightly above ground for visual pop)
+  const rimInner = radius * 1.02;
+  const rimOuter = radius * 1.18;
+  const rimGeo = new THREE.RingGeometry(rimInner, rimOuter, 64);
+  const rimMat = new THREE.MeshStandardMaterial({
+    color: 0x111111,
+    roughness: 0.6,
+    metalness: 0.0,
+    side: THREE.DoubleSide,
+  });
   const rim = new THREE.Mesh(rimGeo, rimMat);
   rim.rotation.x = -Math.PI / 2;
-  rim.position.copy(pos);
-  rim.position.y = 0.001; // slightly above ground
+  rim.position.set(pos.x, 0.003, pos.z); // slightly above ground
+  rim.castShadow = false;
+  rim.receiveShadow = true;
   group.add(rim);
 
+  // Add to scene and track for level cleanup
   scene.add(group);
   levelMeshes.push(group);
   return group;
@@ -166,13 +214,16 @@ attachAimControls(renderer, camera, ball, ballPhysics, scene, {
 });
 
 // UI buttons
+// UI buttons
 const resetBtn = document.getElementById('resetBtn');
 const nextBtn = document.getElementById('nextBtn');
 const followBtn = document.getElementById('followBtn');
-const playBtn = document.getElementById('playBtn');
 const nextLevelBtn = document.getElementById('nextLevelBtn');
 const replayBtn = document.getElementById('replayBtn');
 
+// playBtn already declared at the top for start overlay
+
+// Event listeners
 resetBtn.addEventListener('click', () => {
   ballPhysics.resetToStart();
   updateHUDStroke(0);
