@@ -2,60 +2,21 @@
   --hud-bg: rgba(0,0,0,0.45);
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: Inter, system-ui, Arial, sans-serif;
-}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial}
+#c{display:block;width:100%;height:100vh}
+#hud{position:fixed;left:12px;top:12px;background:var(--hud-bg);color:#fff;padding:10px;border-radius:8px;z-index:10;font-size:14px}
+#powerbar{width:160px;height:10px;background:#222;border-radius:6px;margin-top:8px}
+#powerfill{height:100%;width:0%;background:linear-gradient(90deg,#4caf50,#ff9800);border-radius:6px;transition:width 0.05s linear}
+#controls{margin-top:8px}
+#controls button{margin-right:6px}
+#hint{margin-top:8px;color:#ddd;font-size:12px}
+.card button{margin-top:12px}
 
-#c {
-  display: block;
-  width: 100%;
-  height: 100vh;
-}
+/* Start overlay */
+#startOverlay button, #completeOverlay button { cursor: pointer; padding:8px 12px; border-radius:6px; border: none; background:#1976d2; color:#fff; }
 
-#hud {
-  position: fixed;
-  left: 12px;
-  top: 12px;
-  background: var(--hud-bg);
-  color: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  z-index: 10;
-  font-size: 14px;
-}
-
-#powerbar {
-  width: 160px;
-  height: 10px;
-  background: #222;
-  border-radius: 6px;
-  margin-top: 8px;
-}
-
-#powerfill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #4caf50, #ff9800);
-  border-radius: 6px;
-  transition: width 0.05s linear;
-}
-
-#controls {
-  margin-top: 8px;
-}
-
-#controls button {
-  margin-right: 6px;
-}
-
-#hint {
-  margin-top: 8px;
-  color: #ddd;
-  font-size: 12px;
-}
-
-.card button {
-  margin-top: 12px;
+/* small responsive tweak */
+@media (max-width:600px) {
+  #hud { font-size:13px; left:8px; top:8px; padding:8px; }
+  #powerbar { width:120px; }
 }

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Mini Golf 3D</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+        
+        #game-canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .ui-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            z-index: 10;
+        }
+
+        .game-info {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        #power-bar-container {
+            width: 150px;
+            height: 20px;
+            border: 1px solid white;
+            margin-top: 10px;
+        }
+
+        #power-bar {
+            height: 100%;
+            background: linear-gradient(to right, limegreen, orange, red);
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+
+        #resetBtn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            padding: 10px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #resetBtn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="game-canvas"></canvas>
+
+    <button id="resetBtn">Reset Ball</button>
+    
+    <div class="ui-container">
+        <div class="game-info">
+            <p>Hole: <span id="hole-number">1</span></p>
+            <p>Strokes: <span id="stroke-count">0</span></p>
+        </div>
+        <div class="controls">
+            <div id="power-bar-container">
+                <div id="power-bar"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+      // === Setup basic scene ===
+      const scene = new THREE.Scene();
+
+      // Camera
+      const camera = new THREE.PerspectiveCamera(
+        75, window.innerWidth / window.innerHeight, 0.1, 1000
+      );
+      camera.position.set(0, 5, 10);
+
+      // Renderer
+      const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.getElementById('game-canvas') });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      // === UI Code Starts Here ===
+
+      // 1. Get references to your UI elements
+      const strokeCountEl = document.getElementById('stroke-count');
+      const holeNumberEl = document.getElementById('hole-number');
+      const powerBarEl = document.getElementById('power-bar');
+      const resetBtn = document.getElementById('resetBtn');
+
+      // 2. Define game state variables
+      let strokeCount = 0;
+      let currentHole = 1;
+      let isBallMoving = false;
+      let isChargingShot = false;
+      let shotPower = 0;
+
+      // 3. Implement power bar and shot logic
+      renderer.domElement.addEventListener('mousedown', () => {
+          if (!isBallMoving) {
+              isChargingShot = true;
+          }
+      });
+
+      renderer.domElement.addEventListener('mouseup', () => {
+          if (isChargingShot) {
+              isChargingShot = false;
+              powerBarEl.style.width = '0%';
+              
+              // You would add physics logic here to move the ball
+              console.log(`Shot taken with power: ${shotPower}`);
+
+              strokeCount++;
+              strokeCountEl.textContent = strokeCount;
+              
+              shotPower = 0;
+              isBallMoving = true;
+          }
+      });
+      
+      // 4. Implement reset button logic
+      resetBtn.addEventListener("click", () => {
+        // Reset ball position
+        ball.position.set(0, 0.3, 0);
+
+        // Reset game state
+        strokeCount = 0;
+        
+        // Update the UI
+        strokeCountEl.textContent = strokeCount;
+        powerBarEl.style.width = '0%';
+        isBallMoving = false;
+      });
+
+      // === UI Code Ends Here ===
+
+      // Simple camera controls (mouse drag to rotate view)
+      let mouseDown = false;
+      let mouseX = 0;
+      let mouseY = 0;
+      let cameraAngleX = 0;
+      let cameraAngleY = 0;
+
+      renderer.domElement.addEventListener('mousedown', (e) => {
+        mouseDown = true;
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      renderer.domElement.addEventListener('mousemove', (e) => {
+        if (!mouseDown) return;
+        
+        const deltaX = e.clientX - mouseX;
+        const deltaY = e.clientY - mouseY;
+        
+        cameraAngleY += deltaX * 0.01;
+        cameraAngleX += deltaY * 0.01;
+        
+        cameraAngleX = Math.max(-Math.PI/3, Math.min(Math.PI/3, cameraAngleX));
+        
+        const radius = 12;
+        camera.position.x = Math.sin(cameraAngleY) * Math.cos(cameraAngleX) * radius;
+        camera.position.y = Math.sin(cameraAngleX) * radius + 5;
+        camera.position.z = Math.cos(cameraAngleY) * Math.cos(cameraAngleX) * radius;
+        
+        camera.lookAt(0, 0, 0);
+        
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      renderer.domElement.addEventListener('mouseup', () => {
+        mouseDown = false;
+      });
+
+      // Lighting
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(10, 10, 5);
+      light.castShadow = true;
+      light.shadow.mapSize.width = 2048;
+      light.shadow.mapSize.height = 2048;
+      scene.add(light);
+      scene.add(new THREE.AmbientLight(0x404040, 0.4));
+
+      // Ground (golf course placeholder)
+      const groundGeometry = new THREE.PlaneGeometry(20, 20);
+      const groundMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Golf ball
+      const ballGeometry = new THREE.SphereGeometry(0.3, 32, 32);
+      const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+      const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+      ball.position.set(0, 0.3, 0);
+      ball.castShadow = true;
+      scene.add(ball);
+
+      // Add a simple hole
+      const holeGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 32);
+      const holeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+      const hole = new THREE.Mesh(holeGeometry, holeMaterial);
+      hole.position.set(5, -0.05, 3);
+      scene.add(hole);
+
+      // === Animation loop ===
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // If a shot is being charged, increase the power and update the UI
+        if (isChargingShot) {
+            shotPower = Math.min(100, shotPower + 2); 
+            powerBarEl.style.width = `${shotPower}%`;
+        }
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Resize handling
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+</body>
+</html>

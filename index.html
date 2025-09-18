@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
+    <!-- START Overlay -->
+    <div id="startOverlay" style="display:flex;position:fixed;inset:0;z-index:70;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)">
+      <div style="background:#fff;padding:20px;border-radius:10px;max-width:420px;text-align:center">
+        <h2>MiniGolf — CloneFest</h2>
+        <p>Controls: Hold <b>SHIFT</b> + drag to aim (desktop). On mobile, tap/drag to aim.</p>
+        <p>Objective: Aim, adjust power and sink the ball in each hole.</p>
+        <button id="playBtn">Play</button>
+      </div>
+    </div>
+
     <!-- HUD -->
     <div id="hud">
       <div id="hole">Hole: 1</div>
@@ -16,22 +26,24 @@
       <div id="controls">
         <button id="resetBtn">Reset</button>
         <button id="nextBtn">Next Hole</button>
+        <button id="followBtn">Follow: Off</button>
       </div>
-      <div id="hint">Hold SHIFT + drag to aim</div>
+      <div id="hint">Hold SHIFT + drag to aim (or drag on touch)</div>
     </div>
 
     <!-- Canvas -->
     <canvas id="c"></canvas>
 
-    <!-- Overlay -->
+    <!-- Hole complete overlay -->
     <div id="completeOverlay" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:60">
-      <div class="card" style="background:#fff;padding:18px;border-radius:10px;text-align:center;">
-        <div id="completeText"></div>
+      <div class="card" style="background:#fff;padding:18px;border-radius:10px;text-align:center;max-width:400px">
+        <div id="completeText" style="margin-bottom:12px;"></div>
+        <div id="bestText" style="font-size:13px;color:#333;margin-bottom:10px;"></div>
         <button id="nextLevelBtn">Next Level</button>
+        <button id="replayBtn" style="margin-left:8px">Replay Hole</button>
       </div>
     </div>
 
-    <!-- Vite injects scripts here -->
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

@@ -1,3 +1,4 @@
+// src/ui.js
 export function updateHUDStroke(n) {
   const el = document.getElementById('strokes');
   if (el) el.innerText = 'Strokes: ' + n;
@@ -25,4 +26,16 @@ export function hideHoleComplete() {
   const overlay = document.getElementById('completeOverlay');
   if (!overlay) return;
   overlay.style.display = 'none';
+}
+export function showStartScreen() {
+  const s = document.getElementById('startOverlay');
+  if (s) s.style.display = 'flex';
+}
+export function hideStartScreen() {
+  const s = document.getElementById('startOverlay');
+  if (s) s.style.display = 'none';
+}
+export function updateBestText(msg) {
+  const el = document.getElementById('bestText');
+  if (el) el.innerText = msg || '';
 }

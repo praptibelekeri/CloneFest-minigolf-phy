@@ -1,3 +1,4 @@
+// src/wireAim.js
 import * as THREE from 'three';
 import { updatePowerUI } from './ui.js';
 
@@ -8,6 +9,7 @@ export function attachAimControls(renderer, camera, ballMesh, ballPhysics, scene
   const groundY = opts.groundY ?? 0;
   const powerScale = opts.powerScale ?? 3.6;
   const maxPower = opts.maxPower ?? 18;
+  const requireShift = (opts.requireShift === undefined) ? (!('ontouchstart' in window)) : opts.requireShift;
   let isAiming = false;
 
   const arrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), ballMesh.position.clone(), 0.001, 0xffdd00);
@@ -24,11 +26,15 @@ export function attachAimControls(renderer, camera, ballMesh, ballPhysics, scene
   }
 
   dom.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0 || !e.shiftKey) return;
+    if (e.button !== 0) return;
+    if (requireShift && !e.shiftKey) return;
     e.preventDefault();
     isAiming = true;
     arrow.visible = true;
     arrow.position.copy(ballMesh.position);
+
+    // 🚫 disable OrbitControls while aiming
+    if (opts.onAimStart) opts.onAimStart();
   });
 
   dom.addEventListener('pointermove', (e) => {
@@ -51,11 +57,18 @@ export function attachAimControls(renderer, camera, ballMesh, ballPhysics, scene
     if (!isAiming) return;
     isAiming = false;
     arrow.visible = false;
+
+    // ✅ re-enable OrbitControls after aiming
+    if (opts.onAimEnd) opts.onAimEnd();
+
     const endPoint = screenToGroundPoint(e.clientX, e.clientY);
     const dir = endPoint.clone().sub(ballMesh.position);
     dir.y = 0;
     const dist = dir.length();
-    if (dist < 0.02) return;
+    if (dist < 0.02) {
+      updatePowerUI(0, maxPower);
+      return;
+    }
     dir.normalize();
     const power = Math.min(dist * powerScale, maxPower);
     ballPhysics.applyShot(dir, power);
