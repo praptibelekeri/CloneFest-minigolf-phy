@@ -1,17 +1,21 @@
 {
-  "name": "minigolf-physics",
-  "private": true,
-  "version": "0.0.0",
+  "name": "minigolf-clonefest",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "vite": "^7.1.2"
+    "preview": "vite preview --host",
+    "serve": "vite preview"
   },
   "dependencies": {
-    "three": "^0.180.0"
+    "@supabase/supabase-js": "^2.57.4",
+    "three": "^0.158.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
