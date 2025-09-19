@@ -1,10 +1,87 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Mini Golf — CloneFest</title>
     <link rel="stylesheet" href="/style.css" />
+    <style>
+      /* Accessibility enhancements */
+      *:focus {
+        outline: 2px solid #3498db;
+        outline-offset: 2px;
+      }
+
+      .sr-only {
+        position: absolute;
+        left: -10000px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+
+      /* Ensure buttons are touch-friendly */
+      button {
+        min-height: 44px;
+        min-width: 44px;
+        touch-action: manipulation;
+      }
+
+      /* High contrast mode support */
+      .high-contrast {
+        filter: contrast(150%) brightness(120%);
+      }
+
+      .high-contrast button {
+        border: 2px solid white !important;
+        font-weight: bold !important;
+      }
+
+      /* Colorblind friendly mode */
+      .colorblind-friendly #powerfill {
+        background: linear-gradient(90deg, #0066cc, #ff9900, #cc0000) !important;
+      }
+
+      /* Text size options */
+      .text-small { font-size: 12px; }
+      .text-normal { font-size: 14px; }
+      .text-large { font-size: 18px; }
+      .text-extra-large { font-size: 24px; }
+
+      /* Reduced motion */
+      .reduce-motion * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      /* Keyboard navigation enhancements */
+      .keyboard-nav canvas {
+        border: 2px solid transparent;
+      }
+
+      .keyboard-nav canvas:focus {
+        border-color: #3498db;
+      }
+
+      /* CSS animations for enhanced features */
+      @keyframes fadeInOut {
+        0% { opacity: 0; transform: scale(0.8); }
+        20% { opacity: 1; transform: scale(1); }
+        80% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0.8); }
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+      }
+    </style>
   </head>
   <body>
     <!-- START Overlay / Welcome Card -->
@@ -13,43 +90,168 @@
         <div class="ball-container">
           <div class="golf-ball"></div>
         </div>
-        <h1> MINIGOLF MANIA</h1>
+        <h1>MINIGOLF MANIA</h1>
         <p>Aim, Shoot, and Conquer Every Hole!⛳</p>
         <div class="card-buttons">
-          <button id="playBtn">🎯 Start Game</button>
-          <button id="settingsBtn">⚙️ Settings</button>
-          <button id="howtoBtn">📜 How to Play</button>
+          <button id="playBtn" aria-label="Start playing the minigolf game">🎯 Start Game</button>
+          <button id="settingsBtn" aria-label="Open settings and accessibility options">⚙️ Settings</button>
+          <button id="howtoBtn" aria-label="Learn how to play the game">📜 How to Play</button>
+        </div>
+        
+        <!-- Quick accessibility options on start screen -->
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+          <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 10px;">Quick Accessibility</p>
+          <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; font-size: 0.85rem;">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+              <input type="checkbox" id="startScreenHighContrast" style="margin-right: 8px;" aria-describedby="hc-desc">
+              <span>High Contrast</span>
+            </label>
+            <label style="display: flex; align-items: center; cursor: pointer;">
+              <input type="checkbox" id="startScreenLargeText" style="margin-right: 8px;" aria-describedby="lt-desc">
+              <span>Large Text</span>
+            </label>
+          </div>
+          <div id="hc-desc" class="sr-only">Enable high contrast mode for better visibility</div>
+          <div id="lt-desc" class="sr-only">Increase text size for better readability</div>
         </div>
       </div>
     </div>
 
-    <!-- HUD -->
-    <div id="hud">
-      <div id="hole">Hole: 1</div>
-      <div id="par">Par: 3</div>
-      <div id="strokes">Strokes: 0</div>
-      <div id="powerbar"><div id="powerfill"></div></div>
-      <div id="controls">
-        <button id="resetBtn">Reset</button>
-        <button id="nextBtn">Next Hole</button>
-        <button id="followBtn">Follow: Off</button>
+    <!-- HUD with enhanced accessibility -->
+    <div id="hud" role="complementary" aria-label="Game information display">
+      <div id="hole" aria-live="polite" aria-label="Current hole number">Hole: 1</div>
+      <div id="par" aria-live="polite" aria-label="Target strokes for this hole">Par: 3</div>
+      <div id="strokes" aria-live="polite" aria-label="Current stroke count">Strokes: 0</div>
+      
+      <div role="group" aria-label="Power meter">
+        <div class="sr-only">Power level indicator</div>
+        <div id="powerbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Shot power">
+          <div id="powerfill"></div>
+        </div>
       </div>
-      <div id="hint">Hold SHIFT + drag to aim (or drag on touch)</div>
+      
+      <div id="controls" role="group" aria-label="Game controls">
+        <button id="resetBtn" aria-label="Reset ball to starting position">Reset</button>
+        <button id="nextBtn" aria-label="Skip to next hole">Next Hole</button>
+        <button id="followBtn" aria-label="Toggle camera following ball" aria-pressed="false">Follow: Off</button>
+      </div>
+      
+      <div id="hint" aria-label="Game instructions">Hold SHIFT + drag to aim (or drag on touch)</div>
+      
+      <!-- Keyboard shortcuts info -->
+      <div class="sr-only" id="keyboard-shortcuts">
+        <h3>Keyboard Shortcuts</h3>
+        <ul>
+          <li>R: Reset ball</li>
+          <li>N: Next hole</li>
+          <li>F: Toggle follow camera</li>
+          <li>A: Open accessibility panel</li>
+          <li>G: Announce game state</li>
+          <li>Escape: Close menus</li>
+        </ul>
+      </div>
     </div>
 
-    <!-- Canvas -->
-    <canvas id="c"></canvas>
+    <!-- Canvas with accessibility attributes -->
+    <canvas id="c" 
+            role="img" 
+            aria-label="3D minigolf game view. Use keyboard controls or mouse to play."
+            tabindex="0"
+            aria-describedby="canvas-instructions">
+    </canvas>
+    
+    <div id="canvas-instructions" class="sr-only">
+      Interactive 3D minigolf game. Hold SHIFT and drag to aim your shot. Use keyboard shortcuts for quick actions. Press A to open accessibility options.
+    </div>
 
-    <!-- Hole complete overlay -->
-    <div id="completeOverlay" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:60">
+    <!-- Hole complete overlay with enhanced accessibility -->
+    <div id="completeOverlay" 
+         style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:60"
+         role="dialog" 
+         aria-modal="true" 
+         aria-labelledby="complete-title">
       <div class="card" style="background:#fff;padding:18px;border-radius:10px;text-align:center;max-width:400px">
-        <div id="completeText" style="margin-bottom:12px;"></div>
-        <div id="bestText" style="font-size:13px;color:#333;margin-bottom:10px;"></div>
-        <button id="nextLevelBtn">Next Level</button>
-        <button id="replayBtn" style="margin-left:8px">Replay Hole</button>
+        <h2 id="complete-title">Hole Complete!</h2>
+        <div id="completeText" 
+             style="margin-bottom:12px;" 
+             aria-live="assertive" 
+             role="status">
+        </div>
+        <div id="bestText" 
+             style="font-size:13px;color:#333;margin-bottom:10px;" 
+             aria-live="polite">
+        </div>
+        <div role="group" aria-label="Hole completion options">
+          <button id="nextLevelBtn" aria-label="Continue to next hole">Next Level</button>
+          <button id="replayBtn" style="margin-left:8px" aria-label="Replay current hole">Replay Hole</button>
+        </div>
       </div>
+    </div>
+
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcements" 
+         aria-live="polite" 
+         aria-atomic="true" 
+         class="sr-only">
+    </div>
+
+    <!-- Live region for game state announcements -->
+    <div id="game-status" 
+         aria-live="polite" 
+         aria-atomic="false" 
+         class="sr-only">
+    </div>
+
+    <!-- Skip links for keyboard navigation -->
+    <div class="sr-only">
+      <a href="#c" accesskey="1">Skip to game (Alt+1)</a>
+      <a href="#controls" accesskey="2">Skip to controls (Alt+2)</a>
+      <a href="#accessibility-panel" accesskey="3">Skip to accessibility (Alt+3)</a>
     </div>
 
     <script type="module" src="/src/main.js"></script>
+    
+    <script>
+      // Apply quick accessibility settings from start screen
+      document.addEventListener('DOMContentLoaded', () => {
+        const highContrastCheckbox = document.getElementById('startScreenHighContrast');
+        const largeTextCheckbox = document.getElementById('startScreenLargeText');
+        
+        if (highContrastCheckbox) {
+          highContrastCheckbox.addEventListener('change', (e) => {
+            document.body.classList.toggle('high-contrast', e.target.checked);
+          });
+        }
+        
+        if (largeTextCheckbox) {
+          largeTextCheckbox.addEventListener('change', (e) => {
+            document.body.classList.toggle('text-large', e.target.checked);
+          });
+        }
+
+        // Auto-detect user preferences
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.body.classList.add('reduce-motion');
+        }
+
+        if (window.matchMedia('(prefers-contrast: high)').matches) {
+          document.body.classList.add('high-contrast');
+          if (highContrastCheckbox) {
+            highContrastCheckbox.checked = true;
+          }
+        }
+
+        // Initialize keyboard navigation
+        document.body.classList.add('keyboard-nav');
+        
+        // Announce page load to screen readers
+        const announcer = document.getElementById('sr-announcements');
+        if (announcer) {
+          setTimeout(() => {
+            announcer.textContent = 'Minigolf Mania loaded. Press Start Game to begin or use keyboard shortcuts for navigation.';
+          }, 1000);
+        }
+      });
+    </script>
   </body>
 </html>
